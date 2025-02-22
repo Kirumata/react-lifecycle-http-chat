@@ -1,0 +1,19 @@
+.my-message-box {
+    position: relative;
+    border: 1px solid green;
+    width: 60%;
+    padding: 1%;
+    margin: 1%;
+    background-color: palegreen;
+    float: right;
+}
+
+.other-message-box {
+    position: relative;
+    border: 1px solid turquoise;
+    width: 60%;
+    padding: 1%;
+    margin: 1%;
+    background-color: paleturquoise;
+    float: left;
+}
