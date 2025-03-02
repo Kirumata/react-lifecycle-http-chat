@@ -1,7 +1,7 @@
 .chat-area{
   border: 1px solid black;
   width: 30%;
-  height: 90vh;
+  height: 70vh;
   position: relative;
 }
 
@@ -9,23 +9,22 @@
 .header-area{
   position:relative;
   border: 1px solid black;
-  height: 12%;
-  padding: 1%;
+  height: calc(15% - 12px);
+  padding: 5px;
   overflow: hidden;
 }
 
 .messages-area{
   position:relative;
   border: 1px solid black;
-  height: 61%;
-  padding: 1%;
+  height: calc(55% - 12px);
+  padding: 5px;
   overflow-y: scroll;
   overflow-x: hidden;
-  overflow-wrap: normal;
 }
 .input-area{
   position:relative;
   border: 1px solid black;
-  height: 22%;
-  padding: 1%
+  height: calc(30% - 12px);
+  padding: 5px;
 }

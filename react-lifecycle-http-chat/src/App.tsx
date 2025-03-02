@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import './App.css'
 import EnterMessageForm from './components/EnterMessageForm/EnterMessageForm'
 import MessagesBlock from './components/MessagesBlock/MessagesBlock'
@@ -7,23 +7,40 @@ import { getNewGUIDString, guid, MessageData } from './types'
 function App() {
 
   const [data, setData] = useState<MessageData[]>([]);
+  const [message, setMessage] = useState<MessageData>({id: 0, userId: getUuid(), content: ""});
   const [uuid, setUuid] = useState(localStorage.getItem('uuid'));
-  const [lastId, setLastId] = useState<number | undefined>(undefined);
+  const [lastId, setLastId] = useState<number>(0);
 
-  if (!localStorage.getItem('uuid')) {
-    let newUuid: string = getNewGUIDString();
-    localStorage.setItem('uuid', newUuid);
-    setUuid(newUuid);
+  
+
+  function getUuid() : string{
+    let curUuid : string | null = localStorage.getItem('uuid');
+    let result : string;
+    if (!curUuid) {
+      let newUuid: string = getNewGUIDString();
+      localStorage.setItem('uuid', newUuid);
+      result = newUuid;
+    }
+    else{
+      result = curUuid as string;
+    }
+    return result;
+  }
+  
+  async function refresh() {
+    console.log(`http://localhost:7070/messages?from=${lastId}`);
+    let response = await fetch(`http://localhost:7070/messages`);
+    let newData = await response.json();
+    setData(newData);
+    /*
+    for (let i = 0; i < newData.length; i++){
+      setData([...data, newData[i]]);
+    }*/
   }
 
-
   useEffect(() => {
-    let timerId = setInterval(() => {
-      fetch(`/api/messages`)
-        .then((response) => response.json())
-        .then((newData) => {
-          setData(newData);
-        })
+    let timerId = setInterval(async () => {
+      await refresh();
     }, 2000);
 
     return () => {
@@ -31,59 +48,38 @@ function App() {
     }
   }, []);
 
+  useEffect(() => {
+    console.log("hi"+data.length);
+    setLastId(data.length);
+    console.log("lastId"+lastId);
+    }, [data]);
+ 
 
-  function onSend(e) {
-    let newMessage: MessageData = {
-      id: 0,
-      userId: uuid,
-      content: e.target.text.value
-    }
-    setData([...data, newMessage]);
+  async function submit(e: React.FormEvent) {
+    setData([...data, message]);
 
-    fetch('/api/messages', {
-      method: 'POST', body: JSON.stringify(newMessage), headers: { 'Content-Type': 'application/json' }
+    fetch('http://localhost:7070/messages', {
+      method: 'POST', body: JSON.stringify(message), headers: { 'Content-Type': 'application/json' }
     });
 
-    fetch(`/api/messages`)
-      .then((response) => response.json())
-      .then((newData) => setData([newData]));
+    refresh();
 
     e.preventDefault();
   }
 
+  function change(e: ChangeEvent<HTMLTextAreaElement>) {
+    const { name, value } = e.target;
+    setMessage(prevForm => ({ ...prevForm, [name]: value }));
+  };
 
-  /*
-
-  
-
-  function refresh() {
-    if (lastId > 0) {
-      console.log(`refresh last id > 0 last id = ${lastId}`);
-      fetch(`/api/messages/${lastId}`)
-        .then((response) => response.json())
-        .then((newData) => setData([newData]));
-    }
-    else {
-      console.log(`refresh last id = 0 last id = ${lastId}`);
-      fetch(`/api/messages`)
-        .then((response) => response.json())
-        .then((newData) => setData([newData]));
-    }
-  }
-
- 
-
-
-
-  
-*/
   return (
-    <div className='chat-area'>
-      <p>my-uuid = {uuid}</p>
+    <>
+    <p>my-uuid = {uuid}</p>
       <button onClick={() => {
         localStorage.removeItem('uuid');
         setUuid('');
       }}>get new uuid</button>
+    <div className='chat-area'>
       <div className='header-area'>
         <h1>Anonymous chat</h1>
       </div>
@@ -91,9 +87,10 @@ function App() {
         <MessagesBlock messages={data} myUuid={uuid}></MessagesBlock>
       </div>
       <div className='input-area'>
-        <EnterMessageForm onSend={(e) => onSend(e)}></EnterMessageForm>
+        <EnterMessageForm handleSubmit={submit} handleChange={change}></EnterMessageForm>
       </div>
     </div>
+    </>
   )
 }
 

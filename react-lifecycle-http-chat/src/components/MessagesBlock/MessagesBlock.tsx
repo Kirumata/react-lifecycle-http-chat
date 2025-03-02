@@ -15,7 +15,8 @@ export default function MessagesBlock({ messages, myUuid }: { messages: MessageD
     }
     return (
         <>
-            {array}
+        <div className="messages">{array}</div>
+            
         </>
 
     )

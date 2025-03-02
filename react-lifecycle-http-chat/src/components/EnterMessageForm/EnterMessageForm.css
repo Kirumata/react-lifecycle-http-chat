@@ -15,10 +15,15 @@ form {
     width: 100%;
 }
 
+.enter-panel{
+    height: 100%;
+    width: 100%;
+}
+
 .send-message-button {
-    height: 50%;
-    aspect-ratio: 1 / 1;
-    margin: 1%;
+    width: calc(20% - 10px);
+    aspect-ratio: 1;
+    margin: 5px;
     position: absolute;
     top: 50%;
     -ms-transform: translateY(-50%);
